@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
 } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
@@ -14,7 +15,7 @@ import { generateRandomString } from "src/utils/generateRandomString";
 export class ShortenService {
   constructor(@InjectModel(Url.name) private urlModel: Model<Url>) {}
 
-  private async generateUniqueShortCode(length: number = 5) {
+  private async generateUniqueShortCode(length: number = 5): Promise<string> {
     const maxAttempts = 10;
 
     for (let i = 0; i < maxAttempts; i++) {
@@ -31,7 +32,7 @@ export class ShortenService {
     );
   }
 
-  private async generateId(url: string) {
+  private async generateId(url: string): Promise<number> {
     const urls: UrlInfo[] = await this.urlModel.find().exec();
 
     if (urls.find((item) => item.url === url)) {
@@ -41,7 +42,7 @@ export class ShortenService {
     return urls.length > 0 ? Math.max(...urls.map((item) => item.id)) + 1 : 1;
   }
 
-  async createUrl(createUrlDto: CreateUrlDto) {
+  async createUrl(createUrlDto: CreateUrlDto): Promise<Url> {
     const { url } = createUrlDto;
 
     const date = new Date().toISOString();
@@ -57,14 +58,17 @@ export class ShortenService {
     });
 
     try {
-      return await this.urlModel.insertOne(newUrl);
+      return await newUrl.save();
     } catch (error) {
       console.log(error);
       throw new InternalServerErrorException("Failed to create URL");
     }
   }
 
-  async findAll(): Promise<Url[]> {
-    return await this.urlModel.find().exec();
+  async findByShortCode(shortCode: string): Promise<Url> {
+    const foundedUrl = await this.urlModel.findOne({ shortCode }).exec();
+
+    if (!foundedUrl) throw new NotFoundException("Url not Found");
+    return foundedUrl;
   }
 }
