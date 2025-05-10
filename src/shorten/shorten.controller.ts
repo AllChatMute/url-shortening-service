@@ -1,6 +1,7 @@
 import { Body, Controller, Get, Post } from "@nestjs/common";
 import { ShortenService } from "./shorten.service";
 import { CreateUrlDto } from "./Dto/createUrlDto";
+import { ValidateUrlPipe } from "src/pipes/validateUrl.pipe";
 
 @Controller("shorten")
 export class ShortenController {
@@ -12,7 +13,7 @@ export class ShortenController {
   }
 
   @Post()
-  createShortUrl(@Body() createUrlDto: CreateUrlDto) {
+  createShortUrl(@Body(ValidateUrlPipe) createUrlDto: CreateUrlDto) {
     return this.shortenService.createUrl(createUrlDto);
   }
 }

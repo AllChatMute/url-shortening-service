@@ -3,7 +3,7 @@ import { HydratedDocument } from "mongoose";
 
 export type UrlDocument = HydratedDocument<Url>;
 
-const UrlRegex =
+const urlRegex =
   /^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_+.~#?&/=]*)$/;
 
 @Schema()
@@ -13,7 +13,7 @@ export class Url {
 
   @Prop({
     required: true,
-    match: UrlRegex,
+    match: urlRegex,
   })
   url: string;
 
