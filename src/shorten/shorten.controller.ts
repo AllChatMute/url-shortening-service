@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Patch, Post } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+} from "@nestjs/common";
 import { ShortenService } from "./shorten.service";
 import { CreateUrlDto } from "./Dto/createUrlDto";
 import { ValidateUrlPipe } from "src/pipes/validateUrl.pipe";
@@ -23,5 +31,10 @@ export class ShortenController {
     @Param("shortCode") shortCode: string
   ) {
     return this.shortenService.updateShortUrl(createUrlDto, shortCode);
+  }
+
+  @Delete(":shortCode")
+  deleteShortUrl(@Param("shortCode") shortCode: string) {
+    return this.shortenService.deleteShortUrl(shortCode);
   }
 }
