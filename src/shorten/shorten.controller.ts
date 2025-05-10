@@ -6,7 +6,5 @@ export class ShortenController {
   constructor(private readonly shortenService: ShortenService) {}
 
   @Get()
-  getAll() {
-    return 2;
-  }
+  getAll() {}
 }
