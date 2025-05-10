@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -70,5 +71,30 @@ export class ShortenService {
 
     if (!foundedUrl) throw new NotFoundException("Url not Found");
     return foundedUrl;
+  }
+
+  async updateShortUrl(
+    createUrlDto: CreateUrlDto,
+    shortCode: string
+  ): Promise<Url> {
+    if (
+      await this.urlModel
+        .findOne({ url: createUrlDto.url, shortCode: { $ne: shortCode } })
+        .exec()
+    ) {
+      throw new ConflictException("Url already in use");
+    }
+
+    const updatedUrl = await this.urlModel
+      .findOneAndUpdate(
+        { shortCode },
+        { ...createUrlDto, updatedAt: new Date().toISOString() },
+        { new: true }
+      )
+      .exec();
+
+    if (!updatedUrl) throw new NotFoundException("Url not Found");
+
+    return updatedUrl;
   }
 }
