@@ -97,4 +97,14 @@ export class ShortenService {
 
     return updatedUrl;
   }
+
+  async deleteShortUrl(shortCode: string) {
+    try {
+      const deletedUrl = await this.urlModel.findOneAndDelete({ shortCode });
+      if (!deletedUrl) throw Error("Url not Found");
+    } catch (error) {
+      console.log(error);
+      throw new NotFoundException("Url not Found");
+    }
+  }
 }
