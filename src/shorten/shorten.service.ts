@@ -11,10 +11,14 @@ import { Url } from "src/schemas/url.schema";
 import { CreateUrlDto } from "./Dto/createUrlDto";
 import { UrlInfo } from "./types/urlInfo.interface";
 import { generateRandomString } from "src/utils/generateRandomString";
+import { Statistic } from "src/schemas/statistic.schema";
 
 @Injectable()
 export class ShortenService {
-  constructor(@InjectModel(Url.name) private urlModel: Model<Url>) {}
+  constructor(
+    @InjectModel(Url.name) private urlModel: Model<Url>,
+    @InjectModel(Statistic.name) private statisticModel: Model<Statistic>
+  ) {}
 
   private async generateUniqueShortCode(length: number = 5): Promise<string> {
     const maxAttempts = 10;
@@ -59,6 +63,7 @@ export class ShortenService {
     });
 
     try {
+      await this.statisticModel.insertOne({ url, shortCode, accessCount: 0 });
       return await newUrl.save();
     } catch (error) {
       console.log(error);
@@ -68,9 +73,21 @@ export class ShortenService {
 
   async findByShortCode(shortCode: string): Promise<Url> {
     const foundedUrl = await this.urlModel.findOne({ shortCode }).exec();
-
     if (!foundedUrl) throw new NotFoundException("Url not Found");
+
+    await this.statisticModel.findOneAndUpdate(
+      { shortCode },
+      { $inc: { accessCount: 1 } }
+    );
+
     return foundedUrl;
+  }
+
+  async getUrlStatistics(shortCode: string) {
+    const statistic = await this.statisticModel.findOne({ shortCode });
+
+    if (!statistic) throw new NotFoundException("Url not Found");
+    return statistic;
   }
 
   async updateShortUrl(

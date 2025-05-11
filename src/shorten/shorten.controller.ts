@@ -20,6 +20,12 @@ export class ShortenController {
     return this.shortenService.findByShortCode(shortCode);
   }
 
+  @Get(":shortCode/stats")
+  getUrlStatistics(@Param("shortCode") shortCode: string) {
+    console.log(shortCode);
+    return this.shortenService.getUrlStatistics(shortCode);
+  }
+
   @Post()
   createShortUrl(@Body(ValidateUrlPipe) createUrlDto: CreateUrlDto) {
     return this.shortenService.createUrl(createUrlDto);
