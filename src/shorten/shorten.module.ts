@@ -4,6 +4,9 @@ import { ShortenController } from "./shorten.controller";
 import { Url, UrlSchema } from "src/schemas/url.schema";
 import { MongooseModule } from "@nestjs/mongoose";
 import { Statistic, StatisticSchema } from "src/schemas/statistic.schema";
+import { UrlRepositoryService } from "src/services/urlRepository/urlRepository.service";
+import { StatisticRepositoryService } from "src/services/statisticRepository/statisticRepository.service";
+import { HelpersService } from "src/services/helpers/helpers.service";
 
 @Module({
   imports: [
@@ -13,6 +16,11 @@ import { Statistic, StatisticSchema } from "src/schemas/statistic.schema";
     ]),
   ],
   controllers: [ShortenController],
-  providers: [ShortenService],
+  providers: [
+    ShortenService,
+    UrlRepositoryService,
+    StatisticRepositoryService,
+    HelpersService,
+  ],
 })
 export class ShortenModule {}

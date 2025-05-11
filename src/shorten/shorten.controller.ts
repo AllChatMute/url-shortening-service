@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   Param,
   Patch,
   Post,
@@ -39,6 +40,7 @@ export class ShortenController {
     return this.shortenService.updateShortUrl(createUrlDto, shortCode);
   }
 
+  @HttpCode(204)
   @Delete(":shortCode")
   deleteShortUrl(@Param("shortCode") shortCode: string) {
     return this.shortenService.deleteShortUrl(shortCode);

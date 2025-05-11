@@ -1,127 +1,66 @@
-import {
-  BadRequestException,
-  ConflictException,
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-} from "@nestjs/common";
-import { InjectModel } from "@nestjs/mongoose";
-import { Model } from "mongoose";
+import { Injectable } from "@nestjs/common";
 import { Url } from "src/schemas/url.schema";
 import { CreateUrlDto } from "./Dto/createUrlDto";
-import { UrlInfo } from "./types/urlInfo.interface";
-import { generateRandomString } from "src/utils/generateRandomString";
-import { Statistic } from "src/schemas/statistic.schema";
+import { UrlRepositoryService } from "src/services/urlRepository/urlRepository.service";
+import { StatisticRepositoryService } from "src/services/statisticRepository/statisticRepository.service";
+import { HelpersService } from "./../services/helpers/helpers.service";
 
 @Injectable()
 export class ShortenService {
   constructor(
-    @InjectModel(Url.name) private urlModel: Model<Url>,
-    @InjectModel(Statistic.name) private statisticModel: Model<Statistic>
+    private readonly urlRepositoryService: UrlRepositoryService,
+    private readonly statisticRepositoryService: StatisticRepositoryService,
+    private readonly helpersService: HelpersService
   ) {}
-
-  private async generateUniqueShortCode(length: number = 5): Promise<string> {
-    const maxAttempts = 10;
-
-    for (let i = 0; i < maxAttempts; i++) {
-      const shortCode = generateRandomString(length);
-      const exists = await this.urlModel.exists({ shortCode }).exec();
-
-      if (!exists) {
-        return shortCode;
-      }
-    }
-
-    throw new InternalServerErrorException(
-      "Failed to generate unique short code"
-    );
-  }
-
-  private async generateId(url: string): Promise<number> {
-    const urls: UrlInfo[] = await this.urlModel.find().exec();
-
-    if (urls.find((item) => item.url === url)) {
-      throw new BadRequestException("Url shortCode already exists");
-    }
-
-    return urls.length > 0 ? Math.max(...urls.map((item) => item.id)) + 1 : 1;
-  }
 
   async createUrl(createUrlDto: CreateUrlDto): Promise<Url> {
     const { url } = createUrlDto;
 
     const date = new Date().toISOString();
-    const shortCode = await this.generateUniqueShortCode();
-    const id = await this.generateId(url);
+    const shortCode = await this.helpersService.generateUniqueShortCode();
+    const id = await this.helpersService.generateId(url);
 
-    const newUrl = new this.urlModel({
+    const newUrl = {
       id,
       url,
       shortCode,
       createdAt: date,
       updatedAt: date,
+    };
+
+    await this.statisticRepositoryService.create({
+      url,
+      shortCode,
+      accessCount: 0,
     });
 
-    try {
-      await this.statisticModel.insertOne({ url, shortCode, accessCount: 0 });
-      return await newUrl.save();
-    } catch (error) {
-      console.log(error);
-      throw new InternalServerErrorException("Failed to create URL");
-    }
+    return await this.urlRepositoryService.create(newUrl);
   }
 
   async findByShortCode(shortCode: string): Promise<Url> {
-    const foundedUrl = await this.urlModel.findOne({ shortCode }).exec();
-    if (!foundedUrl) throw new NotFoundException("Url not Found");
-
-    await this.statisticModel.findOneAndUpdate(
-      { shortCode },
-      { $inc: { accessCount: 1 } }
-    );
+    const foundedUrl = this.urlRepositoryService.findByShortCode(shortCode);
+    await this.statisticRepositoryService.updateAccessCount(shortCode);
 
     return foundedUrl;
   }
 
   async getUrlStatistics(shortCode: string) {
-    const statistic = await this.statisticModel.findOne({ shortCode });
-
-    if (!statistic) throw new NotFoundException("Url not Found");
-    return statistic;
+    return this.statisticRepositoryService.getUrlStatistics(shortCode);
   }
 
   async updateShortUrl(
     createUrlDto: CreateUrlDto,
     shortCode: string
   ): Promise<Url> {
-    if (
-      await this.urlModel
-        .findOne({ url: createUrlDto.url, shortCode: { $ne: shortCode } })
-        .exec()
-    ) {
-      throw new ConflictException("Url already in use");
-    }
-
-    const updatedUrl = await this.urlModel
-      .findOneAndUpdate(
-        { shortCode },
-        { ...createUrlDto, updatedAt: new Date().toISOString() },
-        { new: true }
-      )
-      .exec();
-
-    if (!updatedUrl) throw new NotFoundException("Url not Found");
+    const updatedUrl = await this.urlRepositoryService.updateShortUrl(
+      shortCode,
+      { ...createUrlDto, updatedAt: new Date().toISOString() }
+    );
 
     return updatedUrl;
   }
 
   async deleteShortUrl(shortCode: string) {
-    try {
-      const deletedUrl = await this.urlModel.findOneAndDelete({ shortCode });
-      if (!deletedUrl) throw Error("Url not Found");
-    } catch (error) {
-      console.log(error);
-      throw new NotFoundException("Url not Found");
-    }
+    return this.urlRepositoryService.deleteUrl(shortCode);
   }
 }
