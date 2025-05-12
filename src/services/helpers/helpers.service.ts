@@ -3,7 +3,7 @@ import {
   Injectable,
   InternalServerErrorException,
 } from "@nestjs/common";
-import { generateRandomString } from "src/utils/generateRandomString";
+import { generateRandomString } from "../../utils/generateRandomString";
 import { UrlRepositoryService } from "../urlRepository/urlRepository.service";
 import { Url } from "src/schemas/url.schema";
 

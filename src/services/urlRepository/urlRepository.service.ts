@@ -1,9 +1,4 @@
-import {
-  ConflictException,
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-} from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { Model } from "mongoose";
 import { Url } from "src/schemas/url.schema";
 import { InjectModel } from "@nestjs/mongoose";
@@ -13,12 +8,7 @@ export class UrlRepositoryService {
   constructor(@InjectModel(Url.name) private urlModel: Model<Url>) {}
 
   async create(url: Url): Promise<Url> {
-    try {
-      return await this.urlModel.insertOne(url);
-    } catch (error) {
-      console.log(error);
-      throw new InternalServerErrorException("Failed to create URL");
-    }
+    return await this.urlModel.insertOne(url);
   }
 
   async isExists(shortCode: string): Promise<boolean> {
@@ -33,35 +23,29 @@ export class UrlRepositoryService {
   }
 
   async findByShortCode(shortCode: string) {
-    const foundedUrl = await this.urlModel.findOne({ shortCode }).exec();
-    if (!foundedUrl) throw new NotFoundException("Url not Found");
-
-    return foundedUrl;
+    return await this.urlModel.findOne({ shortCode }).exec();
   }
 
   async updateShortUrl(
     shortCode: string,
     updatedObj: { url: string; updatedAt: string }
-  ) {
+  ): Promise<Url | "conflict" | null> {
     if (
       await this.urlModel
         .findOne({ url: updatedObj.url, shortCode: { $ne: shortCode } })
         .exec()
     ) {
-      throw new ConflictException("Url already in use");
+      return "conflict";
     }
 
     const updatedUrl = await this.urlModel
       .findOneAndUpdate({ shortCode }, updatedObj, { new: true })
       .exec();
 
-    if (!updatedUrl) throw new NotFoundException("Url not Found");
-
     return updatedUrl;
   }
 
-  async deleteUrl(shortCode: string) {
-    const deletedUrl = await this.urlModel.findOneAndDelete({ shortCode });
-    if (!deletedUrl) throw new NotFoundException("Url not Found");
+  async deleteUrl(shortCode: string): Promise<undefined> {
+    await this.urlModel.findOneAndDelete({ shortCode });
   }
 }

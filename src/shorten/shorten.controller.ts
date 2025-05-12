@@ -23,7 +23,6 @@ export class ShortenController {
 
   @Get(":shortCode/stats")
   getUrlStatistics(@Param("shortCode") shortCode: string) {
-    console.log(shortCode);
     return this.shortenService.getUrlStatistics(shortCode);
   }
 
