@@ -7,6 +7,8 @@ import { Statistic, StatisticSchema } from "src/schemas/statistic.schema";
 import { UrlRepositoryService } from "src/services/urlRepository/urlRepository.service";
 import { StatisticRepositoryService } from "src/services/statisticRepository/statisticRepository.service";
 import { HelpersService } from "src/services/helpers/helpers.service";
+import { ConfigService } from "@nestjs/config";
+import { JwtService } from "@nestjs/jwt";
 
 @Module({
   imports: [
@@ -21,6 +23,8 @@ import { HelpersService } from "src/services/helpers/helpers.service";
     UrlRepositoryService,
     StatisticRepositoryService,
     HelpersService,
+    ConfigService,
+    JwtService,
   ],
 })
 export class ShortenModule {}
