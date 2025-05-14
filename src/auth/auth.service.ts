@@ -10,12 +10,14 @@ import { Response } from "express";
 
 import { JwtService } from "@nestjs/jwt";
 import { User } from "src/schemas/user.schema";
+import { HashService } from "src/services/hash/hash.service";
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly usersService: UsersService,
-    private readonly jwtService: JwtService
+    private readonly jwtService: JwtService,
+    private readonly hashService: HashService
   ) {}
 
   async signIn(
@@ -24,10 +26,15 @@ export class AuthService {
   ): Promise<{ accessToken: string }> {
     const user = await this.usersService.findOne(createUserDto.email);
 
-    if (user?.password !== createUserDto.password) {
+    // if (user?.password !== createUserDto.password) {
+    //   throw new UnauthorizedException();
+    // }
+    if (
+      !user ||
+      !(await this.hashService.compare(createUserDto.password, user?.password))
+    ) {
       throw new UnauthorizedException();
     }
-
     return await this.generateAuthCookie(user, response);
   }
 
@@ -35,9 +42,13 @@ export class AuthService {
     if (await this.usersService.isExists(user.email)) {
       throw new BadRequestException("User already exists");
     }
+    const userToCreate = {
+      email: user.email,
+      password: await this.hashService.hash(user.password),
+    };
 
     try {
-      await this.usersService.create(user);
+      await this.usersService.create(userToCreate);
       return this.generateAuthCookie(user, response);
     } catch {
       throw new InternalServerErrorException("Failed to register");

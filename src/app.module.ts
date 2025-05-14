@@ -11,6 +11,7 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { AuthModule } from "./auth/auth.module";
 import { UsersModule } from "./users/users.module";
 import { User, UserSchema } from "./schemas/user.schema";
+import { HashService } from "./services/hash/hash.service";
 
 @Module({
   imports: [
@@ -34,6 +35,11 @@ import { User, UserSchema } from "./schemas/user.schema";
     AuthModule,
     UsersModule,
   ],
-  providers: [UrlRepositoryService, StatisticRepositoryService, HelpersService],
+  providers: [
+    UrlRepositoryService,
+    StatisticRepositoryService,
+    HelpersService,
+    HashService,
+  ],
 })
 export class AppModule {}

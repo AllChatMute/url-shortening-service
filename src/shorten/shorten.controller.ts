@@ -29,11 +29,13 @@ export class ShortenController {
     return this.shortenService.getUrlStatistics(shortCode);
   }
 
+  @UseGuards(AuthGuard)
   @Post()
   createShortUrl(@Body(ValidateUrlPipe) createUrlDto: CreateUrlDto) {
     return this.shortenService.createUrl(createUrlDto);
   }
 
+  @UseGuards(AuthGuard)
   @Patch(":shortCode")
   updateShortUrl(
     @Body(ValidateUrlPipe) createUrlDto: CreateUrlDto,
@@ -42,6 +44,7 @@ export class ShortenController {
     return this.shortenService.updateShortUrl(createUrlDto, shortCode);
   }
 
+  @UseGuards(AuthGuard)
   @HttpCode(204)
   @Delete(":shortCode")
   deleteShortUrl(@Param("shortCode") shortCode: string) {
