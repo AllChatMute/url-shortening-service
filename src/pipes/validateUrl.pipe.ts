@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable, PipeTransform } from "@nestjs/common";
-import { CreateUrlDto } from "src/shorten/Dto/createUrlDto";
+import { CreateUrlDto } from "src/modules/shorten/Dto/createUrlDto";
 
 @Injectable()
 export class ValidateUrlPipe implements PipeTransform {

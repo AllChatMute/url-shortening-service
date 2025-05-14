@@ -1,17 +1,16 @@
 import { Module } from "@nestjs/common";
 import { MongooseModule } from "@nestjs/mongoose";
-import { ShortenModule } from "./shorten/shorten.module";
 import { UrlRepositoryService } from "./services/urlRepository/urlRepository.service";
 import { StatisticRepositoryService } from "./services/statisticRepository/statisticRepository.service";
 import { HelpersService } from "./services/helpers/helpers.service";
-
 import { Url, UrlSchema } from "src/schemas/url.schema";
 import { Statistic, StatisticSchema } from "src/schemas/statistic.schema";
 import { ConfigModule, ConfigService } from "@nestjs/config";
-import { AuthModule } from "./auth/auth.module";
-import { UsersModule } from "./users/users.module";
 import { User, UserSchema } from "./schemas/user.schema";
 import { HashService } from "./services/hash/hash.service";
+import { AuthModule } from "./modules/auth/auth.module";
+import { ShortenModule } from "./modules/shorten/shorten.module";
+import { UsersModule } from "./modules/users/users.module";
 
 @Module({
   imports: [

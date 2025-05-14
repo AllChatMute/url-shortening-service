@@ -8,7 +8,7 @@ import { Url } from "src/schemas/url.schema";
 import { CreateUrlDto } from "./Dto/createUrlDto";
 import { UrlRepositoryService } from "src/services/urlRepository/urlRepository.service";
 import { StatisticRepositoryService } from "src/services/statisticRepository/statisticRepository.service";
-import { HelpersService } from "./../services/helpers/helpers.service";
+import { HelpersService } from "../../services/helpers/helpers.service";
 
 @Injectable()
 export class ShortenService {

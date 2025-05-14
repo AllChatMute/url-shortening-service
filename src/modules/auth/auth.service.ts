@@ -4,7 +4,7 @@ import {
   InternalServerErrorException,
   UnauthorizedException,
 } from "@nestjs/common";
-import { UsersService } from "src/users/users.service";
+import { UsersService } from "../users/users.service";
 import { CreateUserDto } from "./dto/createUserDto";
 import { Response } from "express";
 
@@ -26,9 +26,6 @@ export class AuthService {
   ): Promise<{ accessToken: string }> {
     const user = await this.usersService.findOne(createUserDto.email);
 
-    // if (user?.password !== createUserDto.password) {
-    //   throw new UnauthorizedException();
-    // }
     if (
       !user ||
       !(await this.hashService.compare(createUserDto.password, user?.password))
