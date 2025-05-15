@@ -11,8 +11,8 @@ import {
 } from "@nestjs/common";
 import { ShortenService } from "./shorten.service";
 import { CreateUrlDto } from "./Dto/createUrlDto";
-import { ValidateUrlPipe } from "src/pipes/validateUrl.pipe";
-import { AuthGuard } from "src/guards/auth.guard";
+import { ValidateUrlPipe } from "../../pipes/validateUrl.pipe";
+import { AuthGuard } from "../../guards/auth.guard";
 
 @Controller("shorten")
 export class ShortenController {
@@ -21,6 +21,12 @@ export class ShortenController {
   @Get(":shortCode")
   getUrl(@Param("shortCode") shortCode: string) {
     return this.shortenService.findByShortCode(shortCode);
+  }
+
+  @UseGuards(AuthGuard)
+  @Get()
+  getAll() {
+    return this.shortenService.getAll();
   }
 
   @UseGuards(AuthGuard)

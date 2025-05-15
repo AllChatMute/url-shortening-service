@@ -4,11 +4,11 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from "@nestjs/common";
-import { Url } from "src/schemas/url.schema";
+import { Url } from "../../schemas/url.schema";
 import { CreateUrlDto } from "./Dto/createUrlDto";
-import { UrlRepositoryService } from "src/services/urlRepository/urlRepository.service";
-import { StatisticRepositoryService } from "src/services/statisticRepository/statisticRepository.service";
 import { HelpersService } from "../../services/helpers/helpers.service";
+import { StatisticRepositoryService } from "../../services/statisticRepository/statisticRepository.service";
+import { UrlRepositoryService } from "../../services/urlRepository/urlRepository.service";
 
 @Injectable()
 export class ShortenService {
@@ -17,6 +17,10 @@ export class ShortenService {
     private readonly statisticRepositoryService: StatisticRepositoryService,
     private readonly helpersService: HelpersService
   ) {}
+
+  async getAll(): Promise<Url[]> {
+    return await this.urlRepositoryService.getUrls();
+  }
 
   async createUrl(createUrlDto: CreateUrlDto): Promise<Url> {
     const { url } = createUrlDto;
@@ -46,10 +50,10 @@ export class ShortenService {
     }
   }
 
-  async findByShortCode(shortCode: string): Promise<Url> {
+  async findByShortCode(shortCode: string): Promise<Url | null> {
     const foundedUrl =
       await this.urlRepositoryService.findByShortCode(shortCode);
-    if (!foundedUrl) throw new NotFoundException("Url not Found");
+    if (!foundedUrl) throw new NotFoundException();
 
     try {
       await this.statisticRepositoryService.updateAccessCount(shortCode);
