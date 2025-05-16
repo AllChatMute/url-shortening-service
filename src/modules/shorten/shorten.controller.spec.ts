@@ -6,6 +6,7 @@ import { StatisticRepositoryService } from "../../services/statisticRepository/s
 import { HelpersService } from "../../services/helpers/helpers.service";
 import { JwtService } from "@nestjs/jwt";
 import { ConfigService } from "@nestjs/config";
+import { NotFoundException } from "@nestjs/common";
 
 const url = {
   id: 1,
@@ -98,7 +99,7 @@ describe("ShortenController", () => {
     expect(await shortenController.deleteShortUrl("code")).toEqual(url);
   });
 
-  it("should returl url with correct structure", async () => {
+  it("should return url with correct structure", async () => {
     const result = await shortenController.getUrl("code");
     expect(result).toEqual(
       expect.objectContaining({
@@ -114,5 +115,15 @@ describe("ShortenController", () => {
   it("should call service with correct shortCode", async () => {
     await shortenController.getUrl("test_code");
     expect(shortenService.findByShortCode).toHaveBeenCalledWith("test_code");
+  });
+
+  it("should throw 404 if url not found", async () => {
+    jest
+      .spyOn(shortenService, "findByShortCode")
+      .mockRejectedValue(new NotFoundException());
+
+    await expect(shortenController.getUrl("invalid")).rejects.toThrow(
+      NotFoundException
+    );
   });
 });

@@ -3,6 +3,7 @@ import { Test } from "@nestjs/testing";
 import { ShortenService } from "./shorten.service";
 import { StatisticRepositoryService } from "../../services/statisticRepository/statisticRepository.service";
 import { UrlRepositoryService } from "../../services/urlRepository/urlRepository.service";
+import { NotFoundException } from "@nestjs/common";
 
 const urlStats = {
   url: "url",
@@ -31,7 +32,6 @@ describe("ShortenService", () => {
         {
           provide: StatisticRepositoryService,
           useValue: {
-            find: jest.fn().mockResolvedValue({ statistic: "test" }),
             create: jest.fn().mockResolvedValue(urlStats),
             updateAccessCount: jest.fn().mockResolvedValue(undefined),
             getUrlStatistics: jest.fn().mockResolvedValue(urlStats),
@@ -40,7 +40,6 @@ describe("ShortenService", () => {
         {
           provide: UrlRepositoryService,
           useValue: {
-            find: jest.fn().mockResolvedValue([]),
             create: jest.fn().mockResolvedValue(url),
             getUrls: jest.fn().mockResolvedValue([url]),
             findByShortCode: jest.fn().mockResolvedValue(url),
@@ -70,5 +69,51 @@ describe("ShortenService", () => {
     jest.spyOn(urlRepositoryService, "isExists").mockResolvedValue(false);
 
     expect(await shortenService.createUrl({ url: "url" })).toEqual(url);
+  });
+
+  it("should return url by shortCode", async () => {
+    expect(await shortenService.findByShortCode("code")).toEqual(url);
+  });
+
+  it("should return url statistics", async () => {
+    expect(await shortenService.getUrlStatistics("code")).toEqual(urlStats);
+  });
+
+  it("should return updated url", async () => {
+    expect(await shortenService.updateShortUrl({ url: "url" }, "code")).toEqual(
+      url
+    );
+  });
+
+  it("should return url with correct structure", async () => {
+    const result = await shortenService.findByShortCode("code");
+    expect(result).toEqual(
+      expect.objectContaining({
+        id: expect.any(Number) as number,
+        url: expect.any(String) as string,
+        shortCode: expect.any(String) as string,
+        createdAt: expect.any(String) as string,
+        updatedAt: expect.any(String) as string,
+      })
+    );
+  });
+
+  it("should return stats with correct structure", async () => {
+    const result = await shortenService.getUrlStatistics("code");
+    expect(result).toEqual(
+      expect.objectContaining({
+        url: expect.any(String) as string,
+        shortCode: expect.any(String) as string,
+        accessCount: expect.any(Number) as string,
+      })
+    );
+  });
+
+  it("should return 404 if url not found", async () => {
+    jest.spyOn(urlRepositoryService, "findByShortCode").mockResolvedValue(null);
+
+    await expect(shortenService.findByShortCode("invalid")).rejects.toThrow(
+      NotFoundException
+    );
   });
 });
