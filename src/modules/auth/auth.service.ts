@@ -9,8 +9,8 @@ import { CreateUserDto } from "./dto/createUserDto";
 import { Response } from "express";
 
 import { JwtService } from "@nestjs/jwt";
-import { User } from "src/schemas/user.schema";
-import { HashService } from "src/services/hash/hash.service";
+import { User } from "../../schemas/user.schema";
+import { HashService } from "../../services/hash/hash.service";
 
 @Injectable()
 export class AuthService {

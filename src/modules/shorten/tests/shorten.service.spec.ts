@@ -1,8 +1,8 @@
-import { HelpersService } from "./../../services/helpers/helpers.service";
+import { HelpersService } from "../../../services/helpers/helpers.service";
 import { Test } from "@nestjs/testing";
-import { ShortenService } from "./shorten.service";
-import { StatisticRepositoryService } from "../../services/statisticRepository/statisticRepository.service";
-import { UrlRepositoryService } from "../../services/urlRepository/urlRepository.service";
+import { ShortenService } from "../shorten.service";
+import { StatisticRepositoryService } from "../../../services/statisticRepository/statisticRepository.service";
+import { UrlRepositoryService } from "../../../services/urlRepository/urlRepository.service";
 import { NotFoundException } from "@nestjs/common";
 
 const urlStats = {

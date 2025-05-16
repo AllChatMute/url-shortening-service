@@ -1,9 +1,9 @@
-import { UrlRepositoryService } from "../../services/urlRepository/urlRepository.service";
-import { ShortenController } from "./shorten.controller";
-import { ShortenService } from "./shorten.service";
+import { UrlRepositoryService } from "../../../services/urlRepository/urlRepository.service";
+import { ShortenController } from "../shorten.controller";
+import { ShortenService } from "../shorten.service";
 import { Test } from "@nestjs/testing";
-import { StatisticRepositoryService } from "../../services/statisticRepository/statisticRepository.service";
-import { HelpersService } from "../../services/helpers/helpers.service";
+import { StatisticRepositoryService } from "../../../services/statisticRepository/statisticRepository.service";
+import { HelpersService } from "../../../services/helpers/helpers.service";
 import { JwtService } from "@nestjs/jwt";
 import { ConfigService } from "@nestjs/config";
 import { NotFoundException } from "@nestjs/common";
