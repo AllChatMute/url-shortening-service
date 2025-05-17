@@ -66,12 +66,12 @@ export class ShortenService {
   }
 
   async getUrlStatistics(shortCode: string) {
-    try {
-      return this.statisticRepositoryService.getUrlStatistics(shortCode);
-    } catch (error) {
-      console.log(error);
-      throw new NotFoundException("Url not Found");
-    }
+    const stats =
+      await this.statisticRepositoryService.getUrlStatistics(shortCode);
+
+    if (!stats) throw new NotFoundException("Url not Found");
+
+    return stats;
   }
 
   async updateShortUrl(
