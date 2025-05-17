@@ -91,6 +91,7 @@ export class ShortenService {
 
   async deleteShortUrl(shortCode: string) {
     try {
+      await this.statisticRepositoryService.deleteStatistics(shortCode);
       return this.urlRepositoryService.deleteUrl(shortCode);
     } catch (error) {
       console.log(error);

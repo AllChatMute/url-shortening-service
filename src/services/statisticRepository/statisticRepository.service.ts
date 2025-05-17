@@ -23,4 +23,8 @@ export class StatisticRepositoryService {
   async getUrlStatistics(shortCode: string): Promise<Statistic | null> {
     return await this.statisticModel.findOne({ shortCode });
   }
+
+  async deleteStatistics(shortCode: string): Promise<undefined> {
+    await this.statisticModel.deleteOne({ shortCode });
+  }
 }

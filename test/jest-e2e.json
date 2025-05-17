@@ -7,6 +7,6 @@
     "^.+\\.(t|j)s$": "ts-jest"
   },
   "moduleNameMapper": {
-    "^src/(.*)$": "<rootDir>/src/$1"
+    "/^src\/(.*)$/": "D:/react/www/Projects/url-shortening-service/test/src/$1"
   }
 }
