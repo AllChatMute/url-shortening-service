@@ -1,5 +1,6 @@
 import {
   ConflictException,
+  Inject,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -9,17 +10,28 @@ import { CreateUrlDto } from "./Dto/createUrlDto";
 import { HelpersService } from "../../services/helpers/helpers.service";
 import { StatisticRepositoryService } from "../../services/statisticRepository/statisticRepository.service";
 import { UrlRepositoryService } from "../../services/urlRepository/urlRepository.service";
+import { CACHE_MANAGER } from "@nestjs/cache-manager";
+import { Cache } from "cache-manager";
 
 @Injectable()
 export class ShortenService {
   constructor(
     private readonly urlRepositoryService: UrlRepositoryService,
     private readonly statisticRepositoryService: StatisticRepositoryService,
-    private readonly helpersService: HelpersService
+    private readonly helpersService: HelpersService,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
-  async getAll(): Promise<Url[]> {
-    return await this.urlRepositoryService.getUrls();
+  async getAll() {
+    const cachedItem = await this.cacheManager.get("getAll");
+
+    if (cachedItem) return cachedItem;
+
+    const data = await this.urlRepositoryService.getUrls();
+
+    await this.cacheManager.set("getAll", data, 10);
+    // return await this.urlRepositoryService.getUrls();
+    return data;
   }
 
   async createUrl(createUrlDto: CreateUrlDto): Promise<Url> {

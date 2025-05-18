@@ -8,12 +8,16 @@ import {
   Patch,
   Post,
   UseGuards,
+  UseInterceptors,
 } from "@nestjs/common";
 import { ShortenService } from "./shorten.service";
 import { CreateUrlDto } from "./Dto/createUrlDto";
 import { ValidateUrlPipe } from "../../pipes/validateUrl.pipe";
 import { AuthGuard } from "../../guards/auth.guard";
+import { CacheInterceptor, CacheKey } from "@nestjs/cache-manager";
+import { TimingInterceptor } from "src/interceptors/timing.interceptor";
 
+@UseInterceptors(CacheInterceptor, TimingInterceptor)
 @Controller("shorten")
 export class ShortenController {
   constructor(private readonly shortenService: ShortenService) {}
@@ -23,10 +27,11 @@ export class ShortenController {
     return this.shortenService.findByShortCode(shortCode);
   }
 
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   @Get()
-  getAll() {
-    return this.shortenService.getAll();
+  @CacheKey("getAll")
+  async getAll() {
+    return await this.shortenService.getAll();
   }
 
   @UseGuards(AuthGuard)

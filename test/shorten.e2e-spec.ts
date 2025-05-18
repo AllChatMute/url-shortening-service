@@ -158,7 +158,7 @@ describe("Shorten (e2e)", () => {
     });
   });
 
-  it("POST /shorten - should throw 409 if url exists", async () => {
+  it("POST /shorten - should throw 400 if url exists", async () => {
     await request(app.getHttpServer())
       .post("/shorten")
       .set("Cookie", ["auth=test-token"])
