@@ -7,6 +7,7 @@ import { HelpersService } from "../../../services/helpers/helpers.service";
 import { JwtService } from "@nestjs/jwt";
 import { ConfigService } from "@nestjs/config";
 import { NotFoundException } from "@nestjs/common";
+import { CACHE_MANAGER } from "@nestjs/cache-manager";
 
 const url = {
   id: 1,
@@ -24,6 +25,7 @@ describe("ShortenController", () => {
     const moduleRef = await Test.createTestingModule({
       controllers: [ShortenController],
       providers: [
+        { provide: CACHE_MANAGER, useValue: {} },
         {
           provide: ShortenService,
           useValue: {

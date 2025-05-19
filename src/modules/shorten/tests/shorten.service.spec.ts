@@ -4,6 +4,7 @@ import { ShortenService } from "../shorten.service";
 import { StatisticRepositoryService } from "../../../services/statisticRepository/statisticRepository.service";
 import { UrlRepositoryService } from "../../../services/urlRepository/urlRepository.service";
 import { NotFoundException } from "@nestjs/common";
+import { CACHE_MANAGER } from "@nestjs/cache-manager";
 
 const urlStats = {
   url: "url",
@@ -30,11 +31,18 @@ describe("ShortenService", () => {
         ShortenService,
         HelpersService,
         {
+          provide: CACHE_MANAGER,
+          useValue: {
+            del: jest.fn(),
+          },
+        },
+        {
           provide: StatisticRepositoryService,
           useValue: {
             create: jest.fn().mockResolvedValue(urlStats),
             updateAccessCount: jest.fn().mockResolvedValue(undefined),
             getUrlStatistics: jest.fn().mockResolvedValue(urlStats),
+            updateUrl: jest.fn().mockResolvedValue(urlStats),
           },
         },
         {

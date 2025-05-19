@@ -15,7 +15,7 @@ import { CreateUrlDto } from "./Dto/createUrlDto";
 import { ValidateUrlPipe } from "../../pipes/validateUrl.pipe";
 import { AuthGuard } from "../../guards/auth.guard";
 import { CacheInterceptor } from "@nestjs/cache-manager";
-import { TimingInterceptor } from "src/interceptors/timing.interceptor";
+import { TimingInterceptor } from "../../interceptors/timing.interceptor";
 
 @UseInterceptors(CacheInterceptor, TimingInterceptor)
 @Controller("shorten")
