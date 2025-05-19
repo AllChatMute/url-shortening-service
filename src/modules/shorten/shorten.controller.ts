@@ -14,7 +14,7 @@ import { ShortenService } from "./shorten.service";
 import { CreateUrlDto } from "./Dto/createUrlDto";
 import { ValidateUrlPipe } from "../../pipes/validateUrl.pipe";
 import { AuthGuard } from "../../guards/auth.guard";
-import { CacheInterceptor, CacheKey } from "@nestjs/cache-manager";
+import { CacheInterceptor } from "@nestjs/cache-manager";
 import { TimingInterceptor } from "src/interceptors/timing.interceptor";
 
 @UseInterceptors(CacheInterceptor, TimingInterceptor)
@@ -27,10 +27,10 @@ export class ShortenController {
     return this.shortenService.findByShortCode(shortCode);
   }
 
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   @Get()
-  @CacheKey("getAll")
   async getAll() {
+    console.log("inside controller");
     return await this.shortenService.getAll();
   }
 

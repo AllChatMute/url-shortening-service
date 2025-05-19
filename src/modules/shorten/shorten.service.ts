@@ -23,15 +23,8 @@ export class ShortenService {
   ) {}
 
   async getAll() {
-    const cachedItem = await this.cacheManager.get("getAll");
-
-    if (cachedItem) return cachedItem;
-
-    const data = await this.urlRepositoryService.getUrls();
-
-    await this.cacheManager.set("getAll", data, 10);
-    // return await this.urlRepositoryService.getUrls();
-    return data;
+    console.log("inside service");
+    return await this.urlRepositoryService.getUrls();
   }
 
   async createUrl(createUrlDto: CreateUrlDto): Promise<Url> {

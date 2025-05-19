@@ -11,6 +11,9 @@ import { HashService } from "./services/hash/hash.service";
 import { AuthModule } from "./modules/auth/auth.module";
 import { ShortenModule } from "./modules/shorten/shorten.module";
 import { UsersModule } from "./modules/users/users.module";
+import { CacheModule } from "@nestjs/cache-manager";
+import { redisStore } from "cache-manager-redis-yet";
+import { createKeyv } from "@keyv/redis";
 
 @Module({
   imports: [
@@ -30,6 +33,13 @@ import { UsersModule } from "./modules/users/users.module";
       { name: Statistic.name, schema: StatisticSchema },
       { name: User.name, schema: UserSchema },
     ]),
+    CacheModule.registerAsync({
+      isGlobal: true,
+      useFactory: (configService: ConfigService) => ({
+        stores: [createKeyv(configService.get("REDIS_URL"))],
+      }),
+      inject: [ConfigService],
+    }),
     ShortenModule,
     AuthModule,
     UsersModule,

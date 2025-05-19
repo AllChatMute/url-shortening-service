@@ -9,7 +9,6 @@ import { StatisticRepositoryService } from "../../services/statisticRepository/s
 import { HelpersService } from "../../services/helpers/helpers.service";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
-import { CacheModule } from "@nestjs/cache-manager";
 
 @Module({
   imports: [
@@ -17,7 +16,6 @@ import { CacheModule } from "@nestjs/cache-manager";
       { name: Url.name, schema: UrlSchema },
       { name: Statistic.name, schema: StatisticSchema },
     ]),
-    CacheModule.register(),
   ],
   controllers: [ShortenController],
   providers: [
