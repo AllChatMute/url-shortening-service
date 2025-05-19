@@ -20,6 +20,14 @@ export class StatisticRepositoryService {
     );
   }
 
+  async updateUrl(shortCode: string, url: string): Promise<Statistic | null> {
+    return await this.statisticModel.findOneAndUpdate(
+      { shortCode },
+      { url },
+      { new: true }
+    );
+  }
+
   async getUrlStatistics(shortCode: string): Promise<Statistic | null> {
     return await this.statisticModel.findOne({ shortCode });
   }

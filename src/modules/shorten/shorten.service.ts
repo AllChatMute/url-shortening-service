@@ -23,7 +23,6 @@ export class ShortenService {
   ) {}
 
   async getAll() {
-    console.log("inside service");
     return await this.urlRepositoryService.getUrls();
   }
 
@@ -43,6 +42,7 @@ export class ShortenService {
     };
 
     try {
+      await this.cacheManager.del("/shorten");
       await this.statisticRepositoryService.create({
         url,
         shortCode,
@@ -55,12 +55,13 @@ export class ShortenService {
     }
   }
 
-  async findByShortCode(shortCode: string): Promise<Url | null> {
+  async findByShortCode(shortCode: string): Promise<Url> {
     const foundedUrl =
       await this.urlRepositoryService.findByShortCode(shortCode);
     if (!foundedUrl) throw new NotFoundException();
 
     try {
+      await this.cacheManager.del(`shorten/${shortCode}/stats`);
       await this.statisticRepositoryService.updateAccessCount(shortCode);
     } catch (error) {
       console.log(error);
@@ -87,14 +88,30 @@ export class ShortenService {
       shortCode,
       { ...createUrlDto, updatedAt: new Date().toISOString() }
     );
-
     if (!updatedUrl) throw new NotFoundException("Url not Found");
     if (updatedUrl === "conflict") throw new ConflictException("Url is busy");
+
+    await this.statisticRepositoryService.updateUrl(
+      shortCode,
+      createUrlDto.url
+    );
+
+    await Promise.all([
+      this.cacheManager.del("/shorten"),
+      this.cacheManager.del(`/shorten/${shortCode}`),
+      this.cacheManager.del(`/shorten/${shortCode}/stats`),
+    ]);
 
     return updatedUrl;
   }
 
   async deleteShortUrl(shortCode: string) {
+    await Promise.all([
+      this.cacheManager.del("/shorten"),
+      this.cacheManager.del(`/shorten/${shortCode}`),
+      this.cacheManager.del(`/shorten/${shortCode}/stats`),
+    ]);
+
     try {
       await this.statisticRepositoryService.deleteStatistics(shortCode);
       return this.urlRepositoryService.deleteUrl(shortCode);

@@ -30,7 +30,6 @@ export class ShortenController {
   @UseGuards(AuthGuard)
   @Get()
   async getAll() {
-    console.log("inside controller");
     return await this.shortenService.getAll();
   }
 

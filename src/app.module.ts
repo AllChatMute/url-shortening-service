@@ -12,7 +12,6 @@ import { AuthModule } from "./modules/auth/auth.module";
 import { ShortenModule } from "./modules/shorten/shorten.module";
 import { UsersModule } from "./modules/users/users.module";
 import { CacheModule } from "@nestjs/cache-manager";
-import { redisStore } from "cache-manager-redis-yet";
 import { createKeyv } from "@keyv/redis";
 
 @Module({
@@ -37,6 +36,7 @@ import { createKeyv } from "@keyv/redis";
       isGlobal: true,
       useFactory: (configService: ConfigService) => ({
         stores: [createKeyv(configService.get("REDIS_URL"))],
+        ttl: 2 * 60 * 60 * 1000,
       }),
       inject: [ConfigService],
     }),
